@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Gender-Specific Marriage Rates for ages 35-39, years 1985-2013</title>
+		<script type="text/javascript" src="d3/d3.v3.js">
+		</script>
+		<style type ="text/css">
+				.axis path,
+				.axis line {
+					fill: none;
+					stroke: black;
+					shape-rendering: crispEdges;
+				}
+
+				.axis text {
+					font-family: sans-serif;
+					font-size: 11px;
+				}
+		</style>
+	</head>
+
+	<body>
+              
+
+		<script type = "text/javascript">
+
+        var w = 800;
+        var h = 600;
+        var padding = 30;
+
+        var svg = d3.select("body")
+                    .append("svg")
+                    .attr("width", w)
+                    .attr("height",h);
+
+		var dataset;
+       
+        
+        d3.csv("GenderMarriageRates.csv", function(data) {
+            dataset = data;
+        
+            AgeGroup = "15-19"  
+
+            
+            filtered = dataset.filter(function(d) { return d.age == AgeGroup; })
+        /** Scales **/
+            var xScaleYear = d3.scale.linear()
+                                    .domain([d3.min(filtered,function(d) {
+                                                 return d["year"];
+                                            }),
+                                            d3.max(filtered,function(d) {
+                                                return d["year"];
+                                            })
+                                    ])
+                                    .range([padding,w-padding*2]);
+
+            var yScalePercentage = d3.scale.linear()
+                                    .domain([d3.min(filtered,function(d) {
+                                                return d["percentage"];
+                                            }),
+                                            d3.max(filtered,function(d) {
+                                                return d["percentage"];
+                                            })
+                                    ])
+                                    .range([h-padding,padding]);
+
+            /** Axis **/
+            var xAxisYear = d3.svg.axis()
+                                .scale(xScaleYear)
+                                .orient("bottom")
+                                .ticks(5)
+                                .tickFormat(d3.format("04d"));
+
+            var yAxisPercentage = d3.svg.axis()
+                                .scale(yScalePercentage)
+                                .orient("left")
+                                .ticks(7);
+
+        /** Plotting Points **/
+
+        svg.selectAll("circles")
+            .data(filtered)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {
+                        return xScaleYear(d["year"]);
+            })
+            .attr("cy", function(d) {
+                        return yScalePercentage(d["percentage"]);
+            })
+            .attr("r",4)
+            .attr("fill", function(d) {
+                if (d["gender"] == "F") {
+                    return "red";
+                }
+                if (d["gender"] == "M") {
+                    return "blue";
+                }});
+            
+
+        /**TEXT LABELS**/
+        svg.selectAll("text")
+            .data(filtered)
+            .enter()
+            .append("text")
+            .text(function (d) { /**d is one row of the dataset**/
+                return "";
+            })
+            .attr("fill","black")
+            .attr("x",20)
+            .attr("y",20);
+        
+
+        /**Appending Axes**/
+        svg.append("g")
+            .attr("class","axis")
+            .attr("transform","translate(0,"+(h-padding)+")")
+            .call(xAxisYear);
+
+        svg.append("g")
+            .attr("class","axis")
+            .attr("transform","translate("+padding+",0)")
+            .call(yAxisPercentage);
+
+        /* GRAPH TITLE */
+        svg.append("text")
+        .attr("x", w/2)             
+        .attr("y", padding)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "22px") 
+        .style("fill","black")
+        .style("text-decoration", "underline")  
+        .text("Age Group: " + AgeGroup);
+
+
+       
+        function updateData(AG) {
+
+            d3.selectAll("svg > *").remove()
+
+
+
+            svg.append("circle")
+                .attr("cx",w/2)
+                .attr("cy",h/2)
+                .attr("r",4)
+                .attr("fill","green");
+
+            d3.csv("GenderMarriageRates.csv", function(data) {
+                dataset = data;
+                //AgeGroup = "15-19"  
+
+            
+                filtered = dataset.filter(function(d) { return d.age == AG; })
+
+                var xScaleYear = d3.scale.linear()
+                                    .domain([d3.min(filtered,function(d) {
+                                                 return d["year"];
+                                            }),
+                                            d3.max(filtered,function(d) {
+                                                return d["year"];
+                                            })
+                                    ])
+                                    .range([padding,w-padding*2]);
+
+                var yScalePercentage = d3.scale.linear()
+                                        .domain([d3.min(filtered,function(d) {
+                                                    return d["percentage"];
+                                                }),
+                                                d3.max(filtered,function(d) {
+                                                    return d["percentage"];
+                                                })
+                                        ])
+                                        .range([h-padding,padding]);
+
+                /** Axis **/
+                var xAxisYear = d3.svg.axis()
+                                    .scale(xScaleYear)
+                                    .orient("bottom")
+                                    .ticks(5)
+                                    .tickFormat(d3.format("04d"));
+
+                var yAxisPercentage = d3.svg.axis()
+                                    .scale(yScalePercentage)
+                                    .orient("left")
+                                    .ticks(7);
+
+                svg.selectAll("circles")
+                    .data(filtered)
+                    .enter()
+                    .append("circle")
+                    .attr("cx", function(d) {
+                                return xScaleYear(d["year"]);
+                    })
+                    .attr("cy", function(d) {
+                                return yScalePercentage(d["percentage"]);
+                    })
+                    .attr("r",4)
+                    .attr("fill", function(d) {
+                        if (d["gender"] == "F") {
+                            return "red";
+                        }
+                        if (d["gender"] == "M") {
+                            return "blue";
+                        }});
+
+                /**Appending Axes**/
+                svg.append("g")
+                    .attr("class","axis")
+                    .attr("transform","translate(0,"+(h-padding)+")")
+                    .call(xAxisYear);
+
+                svg.append("g")
+                    .attr("class","axis")
+                    .attr("transform","translate("+padding+",0)")
+                    .call(yAxisPercentage);
+
+                /* GRAPH TITLE */
+                svg.append("text")
+                .attr("x", w/2)             
+                .attr("y", padding)
+                .attr("text-anchor", "middle")  
+                .style("font-size", "22px") 
+                .style("fill","black")
+                .style("text-decoration", "underline")  
+                .text("Age Group: " + AgeGroup);
+                
+            });
+        }
+
+        d3.select("p")
+            .on("click",function() {
+                updateData(AgeGroup)
+            });
+       
+        });
+        
+
+		</script>
+
+
+        <p>Click on this text to update this plot with new data</p>
+	</body>
+
+
+</html>
+
+		
+
+
